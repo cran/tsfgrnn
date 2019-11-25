@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Francisco Martinez, Maria P. Frias, Antonio Conde, Ana M. Martinez" />
+
+
+<title>Time Series Forecasting with GRNN in R: the tsfgrnn Package</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(title);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#header {
+text-align: center;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Time Series Forecasting with GRNN in R: the tsfgrnn Package</h1>
+<h4 class="author">Francisco Martinez, Maria P. Frias, Antonio Conde, Ana M. Martinez</h4>
+
+
+
+<p>In this document the <strong>tsfgrnn</strong> package for time series forecasting using generalized regression neural networks (GRNN) is described. The package allows the user to build a GRNN model associated with a time series and use the model to predict the future values of the time series. It is possible to consult how the prediction has been done. Two different strategies for forecasting horizons greater than one are implemented. It is also possible to assess the forecast accuracy of the model.</p>
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>A general regression neural network is a variant of an RBF network characterized by a fast single-pass learning. A GRNN consists of a hidden layer with RBF neurons. Normally, the hidden layer has so many neurons as training examples. The center of a neuron is its associated training example and so, its output gives a measure of the closeness of the input vector to the training example. Commonly, a neuron will use the multivariate Gaussian function:</p>
+<p><span class="math display">\[
+G(x, x_{i}) = \exp\left(- \frac{\| x - x_{i} \|^2}{2\sigma^2}\right)
+\]</span></p>
+<p>where <span class="math inline">\(x_{i}\)</span> and <span class="math inline">\(\sigma\)</span> are the center and the smoothing parameter respectively (<span class="math inline">\(x\)</span> is the input vector).</p>
+<p>Given a training set consisting of <span class="math inline">\(n\)</span> training patterns (vectors <span class="math inline">\(\{x_{1}, x_{2}, \ldots x_{n}\}\)</span>) and their associated <span class="math inline">\(n\)</span> targets, normally scalars (<span class="math inline">\(\{y_{1}, y_{2}, \ldots y_{n}\}\)</span>), the GRNN output for an input pattern <span class="math inline">\(x\)</span> is computed in two steps. First, the hidden layer produces a set of weights representing the closeness of <span class="math inline">\(x\)</span> to the training patterns:</p>
+<p><span class="math display">\[
+w_{i} = \frac{\exp\left(- \frac{\| x - x_{i} \|^2}{2\sigma^2}\right)}
+              {\sum_{j=1}^n \exp\left(- \frac{\| x - x_{j} \|^2}{2\sigma^2}\right)}
+\]</span></p>
+<p>Note that the weights decay with distance to the training pattern. The weights sum to one and represent the contribution of every training pattern to the final result. The GRNN output layer computes the output as follows:</p>
+<p><span class="math display">\[
+\hat{y} = \sum_{i=1}^n w_{i}y_{i}
+\]</span></p>
+<p>so a weighted average of the training targets is obtained, where the weights decay with distance to the training patterns. The smoothing parameter controls how many targets are important in the weighted average. When <span class="math inline">\(\sigma\)</span> is very large the result is close to the mean of the training targets because all of them have a similar weight. When <span class="math inline">\(\sigma\)</span> is small only the closest training targets to the input vector have significant weights.</p>
+</div>
+<div id="time-series-forecasting-with-grnn" class="section level1">
+<h1>Time series forecasting with GRNN</h1>
+<p>In this section we describe how the <em>tsfgrnn</em> package can be used to predict the future values of a time series. The key function is <code>grnn_forecasting</code> that builds a model and uses the model to generate forecasts. Let us see an example:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">library</span>(tsfgrnn)</a>
+<a class="sourceLine" id="cb1-2" title="2">pred &lt;-<span class="st"> </span><span class="kw">grnn_forecasting</span>(UKgas, <span class="dt">h =</span> <span class="dv">4</span>)</a>
+<a class="sourceLine" id="cb1-3" title="3">pred<span class="op">$</span>prediction</a>
+<a class="sourceLine" id="cb1-4" title="4"><span class="co">#&gt;        Qtr1   Qtr2   Qtr3   Qtr4</span></a>
+<a class="sourceLine" id="cb1-5" title="5"><span class="co">#&gt; 1987 1163.9  613.1  347.4  782.8</span></a></code></pre></div>
+<p>In this case the forecast horizon is 4, so the next four future values of the time series are predicted. <code>grnn_forecasting</code> returns an S3 object with information of the model and the prediction. In the example we have printed the prediction through the element named <code>prediction</code>. You can get a plot of the forecast using the <code>plot</code> function:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">plot</span>(pred)</a></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<p>or, alternatively, the <code>autoplot</code> function:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">library</span>(ggplot2)</a>
+<a class="sourceLine" id="cb3-2" title="2"><span class="kw">autoplot</span>(pred)</a></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<p>Next, we list the parameters of <code>grnn_forecasting</code> (in the previous call most of these parameters were automatically selected):</p>
+<p><code>timeS</code> : the time series to be forecast.</p>
+<p><code>h</code> : the forecast horizon, that is, the number of future values to be predicted.</p>
+<p><code>lags</code> : an integer vector indicating the lagged values used as autoregressive variables (for instance, 1:2 means that lagged values 1 and 2 should be used).</p>
+<p><code>sigma</code> : the sigma parameter of the GRNN model. By default, it is selected using an optimization algorithm.</p>
+<p><code>msas</code> : the multi-step ahead strategy for generating multi-step ahead forecasts. This is explained in the next section.</p>
+<p><code>scale</code> : a logical value indicating whether the original data is scaled to range [0, 1].</p>
+<p>Currently, we have implemented two multi-step ahead strategies: MIMO and recursive, which are explained in the next section.</p>
+</div>
+<div id="multi-step-ahead-strategies" class="section level1">
+<h1>Multi-step ahead strategies</h1>
+<p>Normally, you need to forecast more than one value into the future. To this end, a forecasting multi-step ahead strategy has to be chosen. Our package implements two common strategies: the MIMO approach and the recursive or iterative approach (when only one future value is predicted both strategies are equivalent). Let us see how they work.</p>
+<div id="multiple-input-multiple-output-strategy" class="section level2">
+<h2>Multiple Input Multiple Output strategy</h2>
+<p>The Multiple Input Multiple Output (MIMO) strategy for forecasting multiple values is based on using as training targets vectors of consecutive values of the time series. The length of these vectors is equal to the length of the forecasting horizon. Let us see how this strategy works in the <em>tsfgrnn</em> package. We are going to use a simple artificial time series to facilitate the explanation.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1">pred &lt;-<span class="st"> </span><span class="kw">grnn_forecasting</span>(<span class="dt">timeS =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">10</span>, <span class="dt">h =</span> <span class="dv">2</span>, <span class="dt">lags =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">3</span>), <span class="dt">msas =</span> <span class="st">&quot;MIMO&quot;</span>, <span class="dt">scale =</span> <span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb4-2" title="2"><span class="kw">grnn_examples</span>(pred)</a>
+<a class="sourceLine" id="cb4-3" title="3"><span class="co">#&gt;      Lag3 Lag1 H1 H2</span></a>
+<a class="sourceLine" id="cb4-4" title="4"><span class="co">#&gt; [1,]    1    3  4  5</span></a>
+<a class="sourceLine" id="cb4-5" title="5"><span class="co">#&gt; [2,]    2    4  5  6</span></a>
+<a class="sourceLine" id="cb4-6" title="6"><span class="co">#&gt; [3,]    3    5  6  7</span></a>
+<a class="sourceLine" id="cb4-7" title="7"><span class="co">#&gt; [4,]    4    6  7  8</span></a>
+<a class="sourceLine" id="cb4-8" title="8"><span class="co">#&gt; [5,]    5    7  8  9</span></a>
+<a class="sourceLine" id="cb4-9" title="9"><span class="co">#&gt; [6,]    6    8  9 10</span></a></code></pre></div>
+<p>In this case the time series consists of the values 1 to 10, the forecast horizon is 2 and the autoregressive lags are 1 and 3. The <code>grnn_examples</code> function returns the training examples of the model. Each row represents a training example. The first one is the pattern (1, 3) and its target (4, 5). Notice that the targets have length 2 as the forecasting horizon. The pattern associated with a target are lagged values of the target (lags 1 and 3). <code>grnn_forecasting</code> has computed a prediction and we can consult the weights of the different training examples in the prediction:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">grnn_weights</span>(pred)</a>
+<a class="sourceLine" id="cb5-2" title="2"><span class="co">#&gt; $input</span></a>
+<a class="sourceLine" id="cb5-3" title="3"><span class="co">#&gt; Lag 3 Lag 1 </span></a>
+<a class="sourceLine" id="cb5-4" title="4"><span class="co">#&gt;     8    10 </span></a>
+<a class="sourceLine" id="cb5-5" title="5"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb5-6" title="6"><span class="co">#&gt; $examples</span></a>
+<a class="sourceLine" id="cb5-7" title="7"><span class="co">#&gt;      Lag3 Lag1 H1 H2        weight</span></a>
+<a class="sourceLine" id="cb5-8" title="8"><span class="co">#&gt; [1,]    1    3  4  5  0.000000e+00</span></a>
+<a class="sourceLine" id="cb5-9" title="9"><span class="co">#&gt; [2,]    2    4  5  6 1.868314e-233</span></a>
+<a class="sourceLine" id="cb5-10" title="10"><span class="co">#&gt; [3,]    3    5  6  7 1.870204e-153</span></a>
+<a class="sourceLine" id="cb5-11" title="11"><span class="co">#&gt; [4,]    4    6  7  8  5.330816e-88</span></a>
+<a class="sourceLine" id="cb5-12" title="12"><span class="co">#&gt; [5,]    5    7  8  9  4.326772e-37</span></a>
+<a class="sourceLine" id="cb5-13" title="13"><span class="co">#&gt; [6,]    6    8  9 10  1.000000e+00</span></a></code></pre></div>
+<p>The output of <code>grnn_weights</code> shows that the GRNN is fed by the input (8, 10), the pattern associated with the forecast. We can see the weights of the different training examples. A weighted average of all the training targets is computed to generate the forecast. In this case, the last training pattern (6, 8) is the closest one to the input pattern and has practically all the weight (so the prediction will be very close to its target (9, 10)). If a large weight has been assigned to a training pattern is because the automatically selected smoothing parameter must be small. Let us check it with the <code>summary</code> function:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">summary</span>(pred)</a>
+<a class="sourceLine" id="cb6-2" title="2"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb6-3" title="3"><span class="co">#&gt; Call:  grnn_forecasting(timeS = 1:10, h = 2, lags = c(1, 3), msas = &quot;MIMO&quot;, </span></a>
+<a class="sourceLine" id="cb6-4" title="4"><span class="co">#&gt;     scale = FALSE)</span></a>
+<a class="sourceLine" id="cb6-5" title="5"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb6-6" title="6"><span class="co">#&gt; Multiple-Step Ahead Strategy: MIMO </span></a>
+<a class="sourceLine" id="cb6-7" title="7"><span class="co">#&gt; Sigma (smoothing parameter): 0.2443669 </span></a>
+<a class="sourceLine" id="cb6-8" title="8"><span class="co">#&gt; Autoregressive lags: 1 3 </span></a>
+<a class="sourceLine" id="cb6-9" title="9"><span class="co">#&gt; Forecasting horizon: 2 </span></a>
+<a class="sourceLine" id="cb6-10" title="10"><span class="co">#&gt; Forecast:</span></a>
+<a class="sourceLine" id="cb6-11" title="11"><span class="co">#&gt; Time Series:</span></a>
+<a class="sourceLine" id="cb6-12" title="12"><span class="co">#&gt; Start = 11 </span></a>
+<a class="sourceLine" id="cb6-13" title="13"><span class="co">#&gt; End = 12 </span></a>
+<a class="sourceLine" id="cb6-14" title="14"><span class="co">#&gt; Frequency = 1 </span></a>
+<a class="sourceLine" id="cb6-15" title="15"><span class="co">#&gt; [1]  9 10</span></a>
+<a class="sourceLine" id="cb6-16" title="16"><span class="co">#&gt; Preprocessing:</span></a>
+<a class="sourceLine" id="cb6-17" title="17"><span class="co">#&gt;    The time series has not been scaled</span></a></code></pre></div>
+<p>It is possible to see a plot with the time series, the forecast, the input pattern and one of the training instances:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1"><span class="kw">library</span>(ggplot2)</a>
+<a class="sourceLine" id="cb7-2" title="2"><span class="kw">plot_example</span>(pred, <span class="dv">1</span>)</a></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<p>In this case we have selected to see the closest training example (in blue and green) to the input pattern (in magenta), to select the fourth closest training example:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1"><span class="kw">plot_example</span>(pred, <span class="dv">4</span>)</a></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+</div>
+<div id="the-recursive-strategy" class="section level2">
+<h2>The recursive strategy</h2>
+<p>In the recursive or iterative strategy a model that can only forecast one-step ahead is built. This model is applied iteratively to generate n-steps ahead forecasts. The recursive strategy is used by successful methodologies such as ARIMA or exponential smoothing. Let us see how this strategy works using the <em>tsfgrnn</em> package. First, we build a model and generate the forecasts for a given time series:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1">predr &lt;-<span class="st"> </span><span class="kw">grnn_forecasting</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>, <span class="dt">h =</span> <span class="dv">2</span>, <span class="dt">lags =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">3</span>), <span class="dt">msas =</span> <span class="st">&quot;recursive&quot;</span>, <span class="dt">scale =</span> <span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb9-2" title="2">predr<span class="op">$</span>prediction</a>
+<a class="sourceLine" id="cb9-3" title="3"><span class="co">#&gt; Time Series:</span></a>
+<a class="sourceLine" id="cb9-4" title="4"><span class="co">#&gt; Start = 11 </span></a>
+<a class="sourceLine" id="cb9-5" title="5"><span class="co">#&gt; End = 12 </span></a>
+<a class="sourceLine" id="cb9-6" title="6"><span class="co">#&gt; Frequency = 1 </span></a>
+<a class="sourceLine" id="cb9-7" title="7"><span class="co">#&gt; [1] 10 10</span></a>
+<a class="sourceLine" id="cb9-8" title="8"><span class="kw">plot</span>(predr)</a></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<p>Let us see the training examples of the model:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" title="1"><span class="kw">grnn_examples</span>(predr)</a>
+<a class="sourceLine" id="cb10-2" title="2"><span class="co">#&gt;      Lag3 Lag1 H1</span></a>
+<a class="sourceLine" id="cb10-3" title="3"><span class="co">#&gt; [1,]    1    3  4</span></a>
+<a class="sourceLine" id="cb10-4" title="4"><span class="co">#&gt; [2,]    2    4  5</span></a>
+<a class="sourceLine" id="cb10-5" title="5"><span class="co">#&gt; [3,]    3    5  6</span></a>
+<a class="sourceLine" id="cb10-6" title="6"><span class="co">#&gt; [4,]    4    6  7</span></a>
+<a class="sourceLine" id="cb10-7" title="7"><span class="co">#&gt; [5,]    5    7  8</span></a>
+<a class="sourceLine" id="cb10-8" title="8"><span class="co">#&gt; [6,]    6    8  9</span></a>
+<a class="sourceLine" id="cb10-9" title="9"><span class="co">#&gt; [7,]    7    9 10</span></a></code></pre></div>
+<p>As can be seen, the length of the training targets is one, because the underlying model only predicts one-step ahead values. To see how, starting from a model that only predicts one-step ahead, the 2-steps ahead forecasts are generated we can use the <code>plot_example</code> function. Let us see first, the one-step ahead forecast:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" title="1"><span class="kw">plot_example</span>(predr, <span class="dt">position =</span> <span class="dv">1</span>, <span class="dt">h =</span> <span class="dv">1</span>)</a></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<p>In the function call, the parameter <code>h</code> indicates that we are interested in seeing the forecasting horizon 1 and the parameter <code>position</code> that we want to see the closest training example. In the forecast, in red, the horizon 1 is highlighted. The input vector used by the GRNN model are the lags 1 and 3 of the one-step ahead value, that is, the vector (8, 10), in magenta.</p>
+<p>We can also see the weights of the training instances used in the prediction of the forecasting horizon 1:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" title="1"><span class="kw">grnn_weights</span>(predr)[[<span class="dv">1</span>]]</a>
+<a class="sourceLine" id="cb12-2" title="2"><span class="co">#&gt; $input</span></a>
+<a class="sourceLine" id="cb12-3" title="3"><span class="co">#&gt; Lag 3 Lag 1 </span></a>
+<a class="sourceLine" id="cb12-4" title="4"><span class="co">#&gt;     8    10 </span></a>
+<a class="sourceLine" id="cb12-5" title="5"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb12-6" title="6"><span class="co">#&gt; $examples</span></a>
+<a class="sourceLine" id="cb12-7" title="7"><span class="co">#&gt;      Lag3 Lag1 H1        weight</span></a>
+<a class="sourceLine" id="cb12-8" title="8"><span class="co">#&gt; [1,]    1    3  4  0.000000e+00</span></a>
+<a class="sourceLine" id="cb12-9" title="9"><span class="co">#&gt; [2,]    2    4  5 1.173637e-265</span></a>
+<a class="sourceLine" id="cb12-10" title="10"><span class="co">#&gt; [3,]    3    5  6 2.154739e-182</span></a>
+<a class="sourceLine" id="cb12-11" title="11"><span class="co">#&gt; [4,]    4    6  7 2.873238e-114</span></a>
+<a class="sourceLine" id="cb12-12" title="12"><span class="co">#&gt; [5,]    5    7  8  2.782690e-61</span></a>
+<a class="sourceLine" id="cb12-13" title="13"><span class="co">#&gt; [6,]    6    8  9  1.957376e-23</span></a>
+<a class="sourceLine" id="cb12-14" title="14"><span class="co">#&gt; [7,]    7    9 10  1.000000e+00</span></a></code></pre></div>
+<p>Due to the fact that in a recursive prediction a one-step ahead model is used iteratively as many times as the length of the forecast horizon, the function <code>grnn_weights</code> returns a list with the different weights used by the model in the different predictions. As we are interested in the forecast for horizon 1 we consult the weights associated with that forecast. The training pattern with the highest weight is (7, 9), that was highlighted in the last plot.</p>
+<p>Now, we plot information about how the forecast horizon 2 has been generated:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" title="1"><span class="kw">plot_example</span>(predr, <span class="dt">position =</span> <span class="dv">1</span>, <span class="dt">h =</span> <span class="dv">2</span>)</a></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<p>In order to select the input vector associated with the forecasting horizon 2, the lags 1 and 3 are used. lag 3 (9) is obtained from the historical values of the time series. However, the time series cannot be used to obtain lag 1. In this situation, the recursive approach uses the predicted values. In this case, the lag 1 corresponds with the forecast for horizon 1, so the forecasted value (10) is used. This can also be checked with the <code>grnn_weights</code> function:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" title="1"><span class="kw">grnn_weights</span>(predr)[[<span class="dv">2</span>]]</a>
+<a class="sourceLine" id="cb14-2" title="2"><span class="co">#&gt; $input</span></a>
+<a class="sourceLine" id="cb14-3" title="3"><span class="co">#&gt; Lag 3 Lag 1 </span></a>
+<a class="sourceLine" id="cb14-4" title="4"><span class="co">#&gt;     9    10 </span></a>
+<a class="sourceLine" id="cb14-5" title="5"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb14-6" title="6"><span class="co">#&gt; $examples</span></a>
+<a class="sourceLine" id="cb14-7" title="7"><span class="co">#&gt;      Lag3 Lag1 H1        weight</span></a>
+<a class="sourceLine" id="cb14-8" title="8"><span class="co">#&gt; [1,]    1    3  4  0.000000e+00</span></a>
+<a class="sourceLine" id="cb14-9" title="9"><span class="co">#&gt; [2,]    2    4  5 1.657484e-303</span></a>
+<a class="sourceLine" id="cb14-10" title="10"><span class="co">#&gt; [3,]    3    5  6 1.136651e-212</span></a>
+<a class="sourceLine" id="cb14-11" title="11"><span class="co">#&gt; [4,]    4    6  7 5.624009e-137</span></a>
+<a class="sourceLine" id="cb14-12" title="12"><span class="co">#&gt; [5,]    5    7  8  2.021069e-76</span></a>
+<a class="sourceLine" id="cb14-13" title="13"><span class="co">#&gt; [6,]    6    8  9  5.275121e-31</span></a>
+<a class="sourceLine" id="cb14-14" title="14"><span class="co">#&gt; [7,]    7    9 10  1.000000e+00</span></a></code></pre></div>
+</div>
+</div>
+<div id="assessing-the-model" class="section level1">
+<h1>Assessing the model</h1>
+<p>The function <code>rolling_origin</code> uses the rolling origin technique to assess the forecasting accuracy of a GRNN model. In order to use this function a GRNN model must have been built previously. We will use the artificial time series 1:20 to see how the function <code>rolling_origin</code> works:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" title="1">pred &lt;-<span class="st"> </span><span class="kw">grnn_forecasting</span>(<span class="kw">ts</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">20</span>), <span class="dt">h =</span> <span class="dv">4</span>, <span class="dt">lags =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb15-2" title="2">ro &lt;-<span class="st"> </span><span class="kw">rolling_origin</span>(pred, <span class="dt">h =</span> <span class="dv">4</span>)</a></code></pre></div>
+<p>The function <code>rolling_origin</code> uses the model returned by a <code>grnn_forecasting</code> call to apply rolling origin evaluation. The object returned by <code>rolling_origin</code> contains the results of the evaluation. For example, the test sets can be consulted as follows:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" title="1"><span class="kw">print</span>(ro<span class="op">$</span>test_sets)</a>
+<a class="sourceLine" id="cb16-2" title="2"><span class="co">#&gt;      h=1 h=2 h=3 h=4</span></a>
+<a class="sourceLine" id="cb16-3" title="3"><span class="co">#&gt; [1,]  17  18  19  20</span></a>
+<a class="sourceLine" id="cb16-4" title="4"><span class="co">#&gt; [2,]  18  19  20  NA</span></a>
+<a class="sourceLine" id="cb16-5" title="5"><span class="co">#&gt; [3,]  19  20  NA  NA</span></a>
+<a class="sourceLine" id="cb16-6" title="6"><span class="co">#&gt; [4,]  20  NA  NA  NA</span></a></code></pre></div>
+<p>Every row of the matrix contains a different test set. The first row is a test set with the last <code>h</code> values of the time series, the second row a test set with the last <code>h</code> - 1 values of the time series and so on. Each test set has an associated training test with all the data in the time series preceding the test set. For every training set a GRNN model with the parameters associated with the original model is built and the test set is predicted. You can see the predictions as follows:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" title="1"><span class="kw">print</span>(ro<span class="op">$</span>predictions)</a>
+<a class="sourceLine" id="cb17-2" title="2"><span class="co">#&gt;      h=1 h=2 h=3 h=4</span></a>
+<a class="sourceLine" id="cb17-3" title="3"><span class="co">#&gt; [1,]  16  16  16  16</span></a>
+<a class="sourceLine" id="cb17-4" title="4"><span class="co">#&gt; [2,]  17  17  17  NA</span></a>
+<a class="sourceLine" id="cb17-5" title="5"><span class="co">#&gt; [3,]  18  18  NA  NA</span></a>
+<a class="sourceLine" id="cb17-6" title="6"><span class="co">#&gt; [4,]  19  NA  NA  NA</span></a></code></pre></div>
+<p>and also the errors in the predictions:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" title="1"><span class="kw">print</span>(ro<span class="op">$</span>errors)</a>
+<a class="sourceLine" id="cb18-2" title="2"><span class="co">#&gt;      h=1 h=2 h=3 h=4</span></a>
+<a class="sourceLine" id="cb18-3" title="3"><span class="co">#&gt; [1,]   1   2   3   4</span></a>
+<a class="sourceLine" id="cb18-4" title="4"><span class="co">#&gt; [2,]   1   2   3  NA</span></a>
+<a class="sourceLine" id="cb18-5" title="5"><span class="co">#&gt; [3,]   1   2  NA  NA</span></a>
+<a class="sourceLine" id="cb18-6" title="6"><span class="co">#&gt; [4,]   1  NA  NA  NA</span></a></code></pre></div>
+<p>Several forecasting accuracy measures applied to all the errors in the different test sets can be consulted:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" title="1">ro<span class="op">$</span>global_accu</a>
+<a class="sourceLine" id="cb19-2" title="2"><span class="co">#&gt;      RMSE       MAE      MAPE </span></a>
+<a class="sourceLine" id="cb19-3" title="3"><span class="co">#&gt;  2.236068  2.000000 10.412797</span></a></code></pre></div>
+<p>It is also possible to consult the forecasting accuracy measures for every forecasting horizon:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" title="1">ro<span class="op">$</span>h_accu</a>
+<a class="sourceLine" id="cb20-2" title="2"><span class="co">#&gt;           h=1      h=2      h=3 h=4</span></a>
+<a class="sourceLine" id="cb20-3" title="3"><span class="co">#&gt; RMSE 1.000000  2.00000  3.00000   4</span></a>
+<a class="sourceLine" id="cb20-4" title="4"><span class="co">#&gt; MAE  1.000000  2.00000  3.00000   4</span></a>
+<a class="sourceLine" id="cb20-5" title="5"><span class="co">#&gt; MAPE 5.425267 10.54581 15.39474  20</span></a></code></pre></div>
+<p>Finally, a plot with the predictions for a given forecast horizon can be generated:</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" title="1"><span class="kw">plot</span>(ro, <span class="dt">h =</span> <span class="dv">4</span>)</a></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<p>The rolling origin technique is very time-consuming, if you want to get a faster assessment of the model you can disable this feature:</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" title="1">ro &lt;-<span class="st"> </span><span class="kw">rolling_origin</span>(pred, <span class="dt">h =</span> <span class="dv">4</span>, <span class="dt">rolling =</span> <span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb22-2" title="2"><span class="kw">print</span>(ro<span class="op">$</span>test_sets)</a>
+<a class="sourceLine" id="cb22-3" title="3"><span class="co">#&gt;      h=1 h=2 h=3 h=4</span></a>
+<a class="sourceLine" id="cb22-4" title="4"><span class="co">#&gt; [1,]  17  18  19  20</span></a>
+<a class="sourceLine" id="cb22-5" title="5"><span class="kw">print</span>(ro<span class="op">$</span>predictions)</a>
+<a class="sourceLine" id="cb22-6" title="6"><span class="co">#&gt;      h=1 h=2 h=3 h=4</span></a>
+<a class="sourceLine" id="cb22-7" title="7"><span class="co">#&gt; [1,]  16  16  16  16</span></a></code></pre></div>
+<p>In this case only one test and training set are used and therefore only one model is built.</p>
+</div>
+<div id="preprocessing-and-model-selection" class="section level1">
+<h1>Preprocessing and model selection</h1>
+<p>In order to use a GRNN model for time series forecasting several parameters have to be selected. Furthermore, some preprocessing techniques can be applied. In the following subsections we give some information about this.</p>
+<div id="model-selection" class="section level2">
+<h2>Model selection</h2>
+<p>Apart from selecting the multi-step ahead strategy the user has to select the smoothing parameter and the autoregressive lags.</p>
+<div id="the-smoothing-parameter" class="section level3">
+<h3>The smoothing parameter</h3>
+<p>This parameter controls the level of smoothing of the training targets. When it is very large all the targets have a similar weight and therefore the forecast is close to the average of all the targets:</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" title="1">pred &lt;-<span class="st"> </span><span class="kw">grnn_forecasting</span>(USAccDeaths, <span class="dt">h =</span> <span class="dv">12</span>, <span class="dt">lags =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">12</span>, <span class="dt">sigma =</span> <span class="dv">100</span>)</a>
+<a class="sourceLine" id="cb23-2" title="2"><span class="kw">plot</span>(pred)</a></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<p>On the contrary, when the smoothing parameter is very small just one or a few training targets have significant weights:</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" title="1">pred &lt;-<span class="st"> </span><span class="kw">grnn_forecasting</span>(USAccDeaths, <span class="dt">h =</span> <span class="dv">12</span>, <span class="dt">lags =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">12</span>, <span class="dt">sigma =</span> <span class="fl">0.05</span>)</a>
+<a class="sourceLine" id="cb24-2" title="2"><span class="kw">plot</span>(pred)</a></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<p>As seen in previous examples, when this parameter is omitted in the function call it is automatically selected. The automatic selection is based on maximising a forecast accuracy measure using the rolling origin evaluation.</p>
+</div>
+<div id="the-autoregressive-lags" class="section level3">
+<h3>The autoregressive lags</h3>
+<p>The autoregressive lags set which lags are used to create the training instances. If you think that some lags can be important you should try to use them. You can also rely on the automatic selection. This is carried out according to the following criteria. The lags are 1:<em>f</em>, where <em>f</em> is the number of periods of the time series. For example, the lags for quarterly data are 1:4 and for monthly data 1:12. For time series in which the number of periods is one (for example, annual data) the lags with significant autocorrelation in the partial autocorrelation function (PACF) are selected. If no lag has a significant autocorrelation, then lags 1:5 are chosen.</p>
+</div>
+<div id="multi-step-ahead-strategy" class="section level3">
+<h3>Multi-step ahead strategy</h3>
+<p>As described above, currently it is possible to choose between the MIMO and recursive strategies. In our experience, the recursive strategy tends to produce better results.</p>
+</div>
+</div>
+<div id="preprocessing-techniques" class="section level2">
+<h2>Preprocessing techniques</h2>
+<p>Time series forecasting methodologies can take advantage of preprocessing techniques. Next, we describe some of these techniques.</p>
+<div id="scaling" class="section level3">
+<h3>Scaling</h3>
+<p>In our experience, time series forecasting with GRNN tends to benefit from scaling the data. Therefore, <code>grnn_forecasting</code> scales by default the time series to the range [0, 1].</p>
+</div>
+<div id="detrending" class="section level3">
+<h3>Detrending</h3>
+<p>In the previous examples we have used time series, such as 1:10 or 1:20, with a constant trend. We have seen how GRNN is not capable of capturing these trends well. The reason is simple, GRNN predicts a weighted average of historical values of the time series, so that it cannot predict correctly values out of the range of the time series. Currently, our package does not include tools to automatically detect trend and transform the time series accordingly. If you are forecasting a time series with trend you can take first differences to improve the forecast:</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" title="1"><span class="kw">set.seed</span>(<span class="dv">5</span>)</a>
+<a class="sourceLine" id="cb25-2" title="2">timeS &lt;-<span class="st"> </span><span class="kw">ts</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">10</span> <span class="op">+</span><span class="st"> </span><span class="kw">rnorm</span>(<span class="dv">10</span>, <span class="dv">0</span>, <span class="fl">.2</span>))</a>
+<a class="sourceLine" id="cb25-3" title="3">prep_timeS &lt;-<span class="st"> </span><span class="kw">diff</span>(timeS)</a>
+<a class="sourceLine" id="cb25-4" title="4">pred &lt;-<span class="st"> </span><span class="kw">grnn_forecasting</span>(prep_timeS, <span class="dt">h =</span> <span class="dv">3</span>)</a>
+<a class="sourceLine" id="cb25-5" title="5">prediction &lt;-<span class="st"> </span><span class="kw">ts</span>(<span class="kw">cumsum</span>(<span class="kw">c</span>(<span class="kw">tail</span>(timeS, <span class="dv">1</span>), pred<span class="op">$</span>prediction)), </a>
+<a class="sourceLine" id="cb25-6" title="6">                 <span class="dt">start =</span> <span class="kw">start</span>(pred<span class="op">$</span>prediction))</a>
+<a class="sourceLine" id="cb25-7" title="7"><span class="kw">plot</span>(<span class="kw">c</span>(timeS, prediction), <span class="dt">type =</span> <span class="st">&quot;n&quot;</span>)</a>
+<a class="sourceLine" id="cb25-8" title="8"><span class="kw">lines</span>(timeS, <span class="dt">type =</span> <span class="st">&quot;o&quot;</span>, <span class="dt">pch =</span> <span class="dv">20</span>, <span class="dt">col =</span> <span class="st">&quot;black&quot;</span>)</a>
+<a class="sourceLine" id="cb25-9" title="9"><span class="kw">lines</span>(prediction, <span class="dt">type =</span> <span class="st">&quot;o&quot;</span>, <span class="dt">pch =</span> <span class="dv">20</span>, <span class="dt">col =</span> <span class="st">&quot;red&quot;</span>)</a></code></pre></div>
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASAAAAEgCAMAAAAjXV6yAAAAXVBMVEUAAAAAADoAAGYAOpAAZrY6AAA6ADo6AGY6kNtmAABmADpmAGZmZmZmtrZmtv+QOgCQZgCQkGaQ2/+2ZgC2/7a2///bkDrb/9vb////AAD/tmb/25D//7b//9v///8jvJutAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAIt0lEQVR4nO2di3ajNhRF3WTSxp02bocJHRM7//+ZRRJgORYc9L7YZ6/VTsLCCO+Iix4Xsfski+xqn4B0KAhAQQAKAlAQgIIAFASgIAAFASgIQEEACgJQEICCABQEoCAABQEoCEBBAAoCUBCAggAUBKAgAAUBKAhAQQAKAlAQgIIAFASgIAAFASgIQEEACgJQEICCABQEoCAABQEoCEBBAAoCUBCAggAUBKAgAAUBKAhAQQAKAlAQgIIAFASgIAAFASgIQEEACgJQEICCABQEoCAABQEoCHAR1O0MbxXPRiCDoNN+9838dD7snt7rnY84jKDTd9vJ9W8PDmMQgIIAF0F98NEwAl1xEdTQjItJ0Gn/WvM8xGIJYgPIxSTofPhW8zzEYrekWYUcWJfYLsFdbLcZvAWlYTPNKgqa43g8qn9CBH289DXvtx9RxYsXdDwaQwGCup1qCLVxofqOBZ0PpqHYPv+KKP+OBY0NxS7uLhbx2RIcw2PQQ9Sg4/QTY5CD48UP72IOjvYvbAfdcOWHgq4Yb10WFGTh8OMr6LR/TdRZjfhsNhIIisW/k1ySNIJOf5r71/01FKfGoU24oPbeBN240fgKai4XSdTYvThBt3XHEF6D4pAmaEYPb/MDs36CBDV9N7WLu8IECXLduiwCBDW6G3/aR83+iBEE/HA8KL2gaTxoSRBMcLhjQcNI0MfLQhBqxwg1G6qkCHI2Dm2yjAeNlexzftxRhqBlN5ost3krv2EuUokQhPVkErSNGrSi+nzmaihOA9aCYpA9gqDizio92caDxp1mZz6KC7LHWNCd6+pzqwvwP6eCh1tR4DYE1RswKyRour62NuR6/UdZ7yd84rCLmxgrLCi8uJCuhumlLkw9r6hnZQVFlJans3o+oOuvqKCYwsI7q81S8gJMhS0pKKqsoBikqlC7HINQKmw5QZE3zJDbvA4xUckvpQQlaE/cdUMxRYOLgtAxAnbsL7HnX80GBu0rCeqbiH0bKPKhnxKCdp/xfgJv86qRKH3qOVF3L6yhqAQJn9VIVUB4DVpsKKYrN/DwyY4fHIPEZrmquJPw6MENxbDOfP7xoNQHv7t2UH1B1pRFiXK9D1xdUJqHenMJStL2uT6g945x93ffcmsfNqQGiR2TzhH67ylI55FeqfSaf+s8RxU9YJaxZRXWkv6EQ67Jyl11sIwtz5B2kLnNC+qLyRIk8FEEWYLGGiTnmdXkjcPrg3vvOEz7SOnNZ86DiGgoLrUV1SpVKpVxNpKXH6/JfXyvE9F+fv+x0HFL9L3yp9FkEaQH9Bs9+ZwvRzHxwNhsMcl3/DT1ZhgV+XKvSzdgVioLK9Ml1teeNm8N2rag0/7pXVeh2TSr6Pm8bQualgyeTYKJS0lRagrlOYYLaqOWpwj7coOZ4FJDiky+Y8bD1ciP3Z6gtOeBy0y+Y8bDbUKQfk6sq7M8TpUEdM8dP17eTHdV/1Cg3MjPROMrSHcg9ILJTemHeqv48RWke1kmx7fwgFmt5VC8Bb2NK0qXFVRJT5ggE36KjihW8xMUg/SERuSy0n7fuJ4fb0F97/O0V3UncmX79V+5xr3dLt53x07PGX68lJo4rPL0nV1+8h2Xj+I9YPZgggLK3aCgkpn2tf2EZ7mWybSv6sbvDKyZ1XKZ9vX9BOYoFsq0F+Anogblz+6Q4Cc8BmWfmxeyWGfgXSzzgFntW5eFyHZQ9Xu7BQUBAgSN+S+57mKZn3bxJOQuFtlPnSnXOLH/L4KwdlCGcmXVmwth7SBIuxve5DvX3nYLWnsyBQmIQTp1bBk15mjWMn1IQS8oSJtKpoOVl6C151KSkEsMDkaPYarvjbQrM8xEylFkCdJTmGq+raxBYv1kCtKjlr7JtEqQXD+ZgvSUZj67FJVdrszgMxByiaEscs9yJeuR0BeT7ae+IOF+6gqS2vax8U9/SReDpDaer6hZg+5UULonDu9cUIJ5sQ348c8PuvSmxK9hloTwGlSo3NpUC9KbwU/Q6bsdeK5/i3a2ke3Lu/etoGE46HyIawmtPiFp2+Huw6NgcVPPHickbXua3QOQJoKCArfj3VO8oW65BNHb4e5J3lC3WILs7Wj3NG+oWypB+Ha0+6o31IUgTUTwJbbiDXWPiOUTvqHuIdlM77IWFASgIAAFASgIQEEACgJQEICCABQEoCBAXkH6/fQzvV/ng2mqP+gakGq9Bss//ngHha8nq6Dzoe/7tu4l4TrX2t5dv801ZKcStNHbAy+oxfqWC/cgq6BhNRDXCJN+xPrrRjMmdbu/SVFeu3BPZ1J4Fgr3oUAMci662D7/cytoLo/US1C3e7VGRSNfrFtEkGs5kF6FIwZ1Tz/3zrDhd4nZw8aRa5GUEOSaKFHXkkNQq64NZ8q/3+pqF0HxszTZBXWuMDnzeLV544Bj2sCsY736u05HcBbuR25Bzj+hjjUuQfqL3a4z5xtvR0EpZvkyC2qdp9jOpAGYL3Ybqk2kXR9vB0Huwj3JK2jpKXxHDTJzc7eXmKlB62fszJ6RSwAMZG4HLfwJXS1pFZtcT9WExKBEE1hZBQ2XkvvScHY1upneQePVa9CCFgtfDzurAAoCUBCAggAUBKAgAAUBKAhAQQAKAlAQgIIAFASgIAAFASgIQEEACgJQEICCABQEoCAABQEoCEBBAAoCUBBAnqCbLJfoNMMoKAhAQQCRgk77v/cm/0y9mvtfJag1+S8qDS/y/UyeCBWkkuT7/1TiVLcbflEZUeMLdsohVNCrzrszqXfNsEHnRXVPP5MstrYaoYL0a1/fTK5hv8GEIe2ric/s9UK0oHYSdEmL9Ui4T4JoQV9qkOJ8+Cv16ivLiBY0JJAPGzTt839rXgCSDtGChodYhruYidZv6Vc4WkS2oOt2UC+m0YnUJcO0PEHCoCAABQEoCEBBAAoCUBCAggAUBKAgAAUBKAhAQQAKAlAQgIIAFASgIAAFASgIQEEACgJQEICCAP8DeRAj1PvKqy0AAAAASUVORK5CYII=" /><!-- --></p>
+</div>
+<div id="seasonality" class="section level3">
+<h3>Seasonality</h3>
+<p>When a time series has a seasonal pattern it is important that the forecasting model captures this pattern. Currently, our package does not implement any strategy to deal with seasonal series. We think that GRNN is able to work directly with seasonal series as long as you set the right autoregressive lags. In the case of seasonal series we recommend to use lags 1:f where <em>f</em> is the length of the seasonal period.</p>
+</div>
+</div>
+</div>
+<div id="acknowledgements" class="section level1">
+<h1>Acknowledgements</h1>
+<p>Funds: This work was partially supported by the project TIN2015-68854-R (FEDER Founds) of the Spanish Ministry of Economy and Competitiveness.</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
