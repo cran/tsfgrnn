@@ -24,7 +24,7 @@ summary.grnnForecast <- function (object, ...) {
       msas = object$msas,
       lags = rev(object$model$lags),
       prediction = object$prediction,
-      prepro = object$prepro
+      transformation = object$transformation
     ),
     class = "summary.grnnForecast"
   )
@@ -44,15 +44,10 @@ print.summary.grnnForecast <- function (x, ...) {
   cat("Multiple-Step Ahead Strategy:", x$msas, "\n")
   cat("Sigma (smoothing parameter):", x$sigma, "\n")
   cat("Autoregressive lags:", x$lags, "\n")
+  cat("Type of training samples transformation:", x$transformation, "\n")
   cat("Forecasting horizon:", length(x$prediction), "\n")
   cat("Forecast:\n")
   print(x$prediction)
-  cat("Preprocessing:\n")
-  if (x$prepro$scale$scale) {
-    cat("   The time series has been scaled to range [0, 1]\n")
-  } else {
-    cat("   The time series has not been scaled\n")
-  }
   invisible(x)
 }
 

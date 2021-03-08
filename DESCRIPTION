@@ -1,7 +1,7 @@
 Package: tsfgrnn
 Type: Package
 Title: Time Series Forecasting Using GRNN
-Version: 0.1.0
+Version: 1.0.0
 Authors@R: c(
     person("Maria Pilar", "Frias-Bustamante", role = c("aut"), email = "mpfrias@ujaen.es"),
     person("Ana Maria", "Martinez-Rodriguez", role = c("aut"), email = "ammartin@ujaen.es"),
@@ -21,17 +21,19 @@ Description: A general regression neural network (GRNN) is a variant of a
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.1.1
-Suggests: testthat, knitr, rmarkdown
-Imports: ggplot2
+RoxygenNote: 7.1.1
+Suggests: testthat (>= 3.0.0), knitr, rmarkdown
+Imports: ggplot2, Rcpp
 VignetteBuilder: knitr
 URL: https://github.com/franciscomartinezdelrio/tsfgrnn
 BugReports: https://github.com/franciscomartinezdelrio/tsfgrnn
-NeedsCompilation: no
-Packaged: 2019-11-20 12:03:27 UTC; UJA
+LinkingTo: Rcpp
+Config/testthat/edition: 3
+NeedsCompilation: yes
+Packaged: 2021-03-08 17:08:06 UTC; UJA
 Author: Maria Pilar Frias-Bustamante [aut],
   Ana Maria Martinez-Rodriguez [aut],
   Antonio Conde-Sanchez [aut],
   Francisco Martinez [aut, cre]
 Repository: CRAN
-Date/Publication: 2019-11-25 21:30:02 UTC
+Date/Publication: 2021-03-08 17:30:02 UTC

@@ -4,8 +4,14 @@
 \alias{grnn_forecasting}
 \title{Time series forecasting using GRNN regression}
 \usage{
-grnn_forecasting(timeS, h, lags = NULL, sigma = NULL,
-  msas = c("recursive", "MIMO"), scale = TRUE)
+grnn_forecasting(
+  timeS,
+  h,
+  lags = NULL,
+  sigma = "ROLLING",
+  msas = c("recursive", "MIMO"),
+  transform = c("multiplicative", "additive", "none")
+)
 }
 \arguments{
 \item{timeS}{A numeric vector or time series of class \code{ts}.}
@@ -13,18 +19,26 @@ grnn_forecasting(timeS, h, lags = NULL, sigma = NULL,
 \item{h}{A positive integer. Number of periods for forecasting.}
 
 \item{lags}{An integer vector in increasing order expressing the lags used as
-autoregressive variables.}
+autoregressive variables. If NULL (the default) the lags are selected in a
+fast, heuristic way. It is also possible to use the values \code{"FS"} and
+\code{"BE"}, in which case, the lags are selected using forward selection
+or backward elimination respectively. These techniques are feature
+selection approaches.}
 
-\item{sigma}{A positive real value. The smoothing parameter in GRNN
-regression. If NULL (the default) the parameter is chosen using an
-optimization tool.}
+\item{sigma}{A positive real value or a character value. The smoothing
+parameter in GRNN regression. Two character values are possible, "ROLLING"
+(the default) and "FIXED", in which case the parameter is chosen using an
+optimization tool with rolling origin evaluation or fixed origin
+evaluation.}
 
 \item{msas}{A string indicating the Multiple-Step Ahead Strategy used when
 more than one value is predicted. It can be "MIMO" or "recursive" (the
 default).}
 
-\item{scale}{A logical. If \code{TRUE} (the default), the time series is
-scaled to the range [0, 1].}
+\item{transform}{A character value indicating whether the training samples
+are transformed. If the time series has a trend it is recommended. By
+default is \code{"multiplicative"} (multiplicative transformation). It is also
+possible a multiplicative transformation or no transformation.}
 }
 \value{
 An object of class \code{"grnnForecast"}. The function
