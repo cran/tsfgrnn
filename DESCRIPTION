@@ -1,7 +1,7 @@
 Package: tsfgrnn
 Type: Package
 Title: Time Series Forecasting Using GRNN
-Version: 1.0.2
+Version: 1.0.4
 Authors@R: c(
     person("Maria Pilar", "Frias-Bustamante", role = c("aut"), email = "mpfrias@ujaen.es"),
     person("Ana Maria", "Martinez-Rodriguez", role = c("aut"), email = "ammartin@ujaen.es"),
@@ -20,7 +20,7 @@ Description: A general regression neural network (GRNN) is a variant of a
     of the model using rolling origin evaluation.
 License: GPL-2
 Encoding: UTF-8
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.3
 Suggests: testthat (>= 3.0.0), knitr, rmarkdown
 Imports: ggplot2, Rcpp
 VignetteBuilder: knitr
@@ -29,10 +29,10 @@ BugReports: https://github.com/franciscomartinezdelrio/tsfgrnn
 LinkingTo: Rcpp
 Config/testthat/edition: 3
 NeedsCompilation: yes
-Packaged: 2022-05-30 11:53:44 UTC; UJA
+Packaged: 2023-03-24 10:06:20 UTC; UJA
 Author: Maria Pilar Frias-Bustamante [aut],
   Ana Maria Martinez-Rodriguez [aut],
   Antonio Conde-Sanchez [aut],
   Francisco Martinez [aut, cre]
 Repository: CRAN
-Date/Publication: 2022-05-30 12:10:02 UTC
+Date/Publication: 2023-03-24 10:50:02 UTC
