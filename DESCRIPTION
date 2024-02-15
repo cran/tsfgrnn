@@ -1,7 +1,7 @@
 Package: tsfgrnn
 Type: Package
 Title: Time Series Forecasting Using GRNN
-Version: 1.0.4
+Version: 1.0.5
 Authors@R: c(
     person("Maria Pilar", "Frias-Bustamante", role = c("aut"), email = "mpfrias@ujaen.es"),
     person("Ana Maria", "Martinez-Rodriguez", role = c("aut"), email = "ammartin@ujaen.es"),
@@ -29,10 +29,10 @@ BugReports: https://github.com/franciscomartinezdelrio/tsfgrnn
 LinkingTo: Rcpp
 Config/testthat/edition: 3
 NeedsCompilation: yes
-Packaged: 2023-03-24 10:06:20 UTC; UJA
+Packaged: 2024-02-15 09:00:58 UTC; UJA
 Author: Maria Pilar Frias-Bustamante [aut],
   Ana Maria Martinez-Rodriguez [aut],
   Antonio Conde-Sanchez [aut],
   Francisco Martinez [aut, cre]
 Repository: CRAN
-Date/Publication: 2023-03-24 10:50:02 UTC
+Date/Publication: 2024-02-15 09:10:02 UTC

@@ -1,8 +1,8 @@
-5a29872e90dab6d720fd8dd27bd267a4 *DESCRIPTION
+f06be5c1ecc36fd8cd0c2fea6b86335b *DESCRIPTION
 20b7c3f1a43fffe0b35c9b1071dbb5ba *NAMESPACE
-27013c5313caa1abec36171b25719aa8 *NEWS.md
+09947a7d42b7c9aa687d96613441e6ff *NEWS.md
 56b43f04a3ca0fccca2da9d89e151f29 *R/RcppExports.R
-5121c7c9b914a4a8cbd9f9988c350493 *R/forecasting.R
+9301885d88436a806f5f75953008fb68 *R/forecasting.R
 f355fa016137794ef43d08e977c2e26a *R/grnn.R
 bc8b801e24d7d43aba8054658526a60f *R/plotting.R
 f963ec7d9317a0c2da8d4e6e5553c3ca *R/print_grnnForecast.R
@@ -10,11 +10,11 @@ da41dc66658e533633baf600c7229d97 *R/rolling_origin.R
 5c4b3e811e8d6e05b700e7caa7bf2750 *R/tsfgrnn-package.R
 6e87d2bba2022b605f923b5ca20040fa *R/utilities.R
 ac221ad5e673b596ae7ca54d71c47bcf *README.md
-f040e3d88a9cb775fc6e19969ebd4a10 *build/vignette.rds
+cf902b6e6dab0b945eb79e07ac964b14 *build/vignette.rds
 1cca73c3e7452229156df266abff0495 *inst/CITATION
-d2d0b76e419e61772ba9c8ec9cf6b24e *inst/doc/tsfgrnn.R
+482cfc46befbf87ae270bcea15cf77ab *inst/doc/tsfgrnn.R
 e25fa80bca41c341dfe9b4291cb14c79 *inst/doc/tsfgrnn.Rmd
-2d38695be80b9c02c4d886161f98256b *inst/doc/tsfgrnn.html
+856c20b4f0efde82ac7f42e3f31bd0fe *inst/doc/tsfgrnn.html
 50d079591b6ff0a465ea964447f53849 *man/autoplot.grnnForecast.Rd
 c2e8731c04ceef24d75a0d481a686ea5 *man/figures/README-example-1.png
 a12a628a59160fad7dd0eadb96101b5f *man/grnn_examples.Rd

@@ -71,7 +71,8 @@ grnn_forecasting <- function(timeS, h, lags = NULL, sigma = "ROLLING",
     } else {
       partial <- stats::pacf(timeS, plot = FALSE)
       lags <- which(partial$acf > 2/ sqrt(length(timeS)))
-      if (length(lags) == 0) {
+      if (length(lags) == 0 ||
+          (length(lags) == 1 && transform %in% c("additive", "multiplicative"))) {
         lags = 1:5
       }
     }
@@ -135,6 +136,8 @@ grnn_forecasting <- function(timeS, h, lags = NULL, sigma = "ROLLING",
 
   if (is.unsorted(lags)) stop("lags should be a vector in increasing order")
   stopifnot(lags[1] >= 1)
+  if (length(lags) == 1 && transform %in% c("additive", "multiplicative"))
+    warning("Using only one lag ant the additive or multiplicative transformation makes no sense")
 
   # Check sigma parameter
   stopifnot(is.numeric(sigma) && sigma > 0 ||
